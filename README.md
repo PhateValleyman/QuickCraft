@@ -96,11 +96,11 @@ The in-game custom registration remains available for structures stored directly
 
 1. Build `QuickCraft.mcaddon`, or use the generated packs from `dist/`.
 2. Import the behavior and resource packs into Minecraft Bedrock.
-3. Enable both packs in the world.
+3. Activate the behavior pack — the resource pack is enabled automatically (the BP manifest declares it as a dependency, kept in sync by `make sync`). If the BP was already active in an older world and the resource pack is missing, run `python3 tools/packs.py activate <world_dir>`.
 4. Enable cheats / commands — QuickCraft uses `/structure load`, which requires commands. citeturn2search0
 5. Build a structure normally. The control stone is created automatically after the successful QuickCraft build.
 
-The current pack targets Minecraft Bedrock **1.20.80+** with `@minecraft/server` **1.11.0** and `@minecraft/server-ui` **1.2.0**.
+The current pack targets Minecraft Bedrock **1.21.80+** with `@minecraft/server` **2.0.0** and `@minecraft/server-ui` **2.0.0**.
 
 ---
 

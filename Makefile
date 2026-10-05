@@ -7,6 +7,8 @@
 #    make            -> scan structures + build .mcpack + .mcaddon
 #    make scan       -> map every .mcstructure and generate exact dimensions
 #    make packs      -> build only the .mcpack files
+#    make sync       -> sync BP->RP dependency (auto-activate resource pack)
+#    make lint       -> syntax-check all scripts
 #    make bp         -> build only the behavior pack (.mcpack)
 #    make rp         -> build only the resource pack (.mcpack)
 #    make addon      -> build only the .mcaddon (requires packs)
@@ -22,6 +24,8 @@ RP_DIR          := $(PACK_DIR)/resource_pack/QuickCraft
 STRUCTURES_DIR  := $(BP_DIR)/structures
 DIMENSIONS_JS   := $(BP_DIR)/scripts/structure_dimensions.js
 SCANNER         := tools/scan_structures.py
+PACKS_TOOL      := tools/packs.py
+NODE            ?= node
 
 DIST_DIR        := dist
 NAME            := QuickCraft
@@ -44,7 +48,7 @@ EXCLUDES := \
 	-x "*.mcworld" \
 	-x "*.mctemplate"
 
-.PHONY: all scan packs bp rp addon clean rebuild check help
+.PHONY: all scan sync lint packs bp rp addon clean rebuild check help
 
 all: addon
 
@@ -55,6 +59,21 @@ $(DIMENSIONS_JS): $(SCANNER) $(shell find $(STRUCTURES_DIR) -type f -name '*.mcs
 	@echo ">> Mapping .mcstructure dimensions"
 	@$(PYTHON) $(SCANNER) $(STRUCTURES_DIR) $(DIMENSIONS_JS)
 
+# Keep BP -> RP dependency (UUID + version) in sync so the resource pack is
+# activated automatically together with the behavior pack.
+sync:
+	@$(PYTHON) $(PACKS_TOOL) sync
+
+# Catch script syntax errors (e.g. duplicate imports) before they ship;
+# a single broken module stops the whole behavior pack script from loading.
+lint:
+	@echo ">> Checking script syntax"
+	@command -v $(NODE) >/dev/null 2>&1 || (echo "   'node' not installed - skipping"; exit 0)
+	@for f in $(BP_DIR)/scripts/*.js; do \
+		$(NODE) --input-type=module --check < "$$f" || (echo "   syntax error in $$f"; exit 1); \
+	done
+	@echo "   OK."
+
 packs: bp rp
 
 bp: $(BP_MCPACK)
@@ -64,7 +83,7 @@ rp: $(RP_MCPACK)
 addon: packs $(MCADDON)
 
 # Rebuild the behavior pack whenever the structure map changes.
-$(BP_MCPACK): scan $(shell find $(BP_DIR) -type f 2>/dev/null)
+$(BP_MCPACK): lint sync scan $(shell find $(BP_DIR) -type f 2>/dev/null)
 	@echo ">> Packaging behavior pack -> $(BP_MCPACK)"
 	@mkdir -p $(DIST_DIR)
 	@rm -f $(BP_MCPACK)

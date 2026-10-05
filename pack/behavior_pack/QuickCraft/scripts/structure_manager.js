@@ -4,8 +4,6 @@
 // Instance names are stored independently from the structure template and can be used as teleport destinations.
 import { world, system } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
-import { world, system } from '@minecraft/server';
-import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
 import { CATEGORIES } from './catalog.js';
 import { teleportToInstance, warping } from './teleport.js';
 
@@ -17,6 +15,21 @@ const MENU_ITEM = 'qc:menu';
 const ROT_CMD = ['0_degrees', '90_degrees', '180_degrees', '270_degrees'];
 const MIRROR_CMD = ['none', 'x', 'z', 'xz'];
 const DEFAULTS = { pos: 0, rot: 0, mirror: 0, dx: 0, dy: 0, dz: 0 };
+const sleep = (ticks) => new Promise((resolve) => system.runTimeout(resolve, ticks));
+
+// A form cannot be shown while chat/another screen is open (UserBusy) - retry for ~20 s.
+async function showForm(player, form) {
+    for (let i = 0; i < 40; i++) {
+        const res = await form.show(player);
+        if (res.cancelationReason === 'UserBusy') {
+            await sleep(10);
+            continue;
+        }
+        return res;
+    }
+    return { canceled: true };
+}
+
 const ALL = CATEGORIES.flatMap((c) => c.items.map((item) => ({ item, cat: c })));
 const BY_ID = new Map(ALL.map((entry) => [entry.item.id, entry.item]));
 
@@ -259,7 +272,7 @@ async function renameInstance(player, instance) {
             instance.name,
         );
 
-    const result = await form.show(player);
+    const result = await showForm(player, form);
     if (result.canceled) return;
 
     const name = String(result.formValues[0] ?? '').trim().slice(0, 48);
@@ -448,7 +461,7 @@ async function openTeleportMenu(player, current) {
 
     form.button('§l§8Zavřít');
 
-    const result = await form.show(player);
+    const result = await showForm(player, form);
     if (result.canceled || result.selection === targets.length) return;
 
     const target = targets[result.selection];
@@ -470,12 +483,12 @@ async function openInstanceMenu(player, instance) {
     const f = new ActionFormData()
         .title('§l§b' + instance.name)
         .body(
-            '§7🌎 QuickCraft stavba\\n' +
-            '§7ID: §f' + instance.id + '\\n' +
+            '§7🌎 QuickCraft stavba\n' +
+            '§7ID: §f' + instance.id + '\n' +
             '§7Rozměry: §f' + instance.size.x + '×' +
-            instance.size.y + '×' + instance.size.z + '\\n' +
+            instance.size.y + '×' + instance.size.z + '\n' +
             '§7Pozice: §f' + instance.origin.x + ' ' +
-            instance.origin.y + ' ' + instance.origin.z + '\\n' +
+            instance.origin.y + ' ' + instance.origin.z + '\n' +
             '§7Šablona: §f' + instance.structure,
         )
         .button(
@@ -493,7 +506,7 @@ async function openInstanceMenu(player, instance) {
         f.button('§l§6🎯 Umístit na zaměřené místo');
     }
 
-    const result = await f.show(player);
+    const result = await showForm(player, f);
     if (result.canceled) return;
 
     if (result.selection === 0) {

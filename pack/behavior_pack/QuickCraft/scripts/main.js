@@ -381,16 +381,24 @@ if (system.afterEvents?.scriptEventReceive) {
 }
 
 // při prvním vstupu do světa dej hráči menu item
-world.afterEvents.playerSpawn.subscribe((ev) => {
-  if (!ev.initialSpawn) return;
-  const p = ev.player;
-  if (p.hasTag('qc_given')) return;
+// (inventář hráče není hned po spawnu připravený, proto krátké zpoždění a opakování)
+function giveMenuItem(player, attempt = 0) {
   try {
+    if (!player.isValid || player.hasTag('qc_given')) return;
     const stack = new ItemStack(MENU_ITEM, 1);
     stack.nameTag = MENU_ITEM_NAME;
     stack.lockMode = 'none';
-    p.getComponent('minecraft:inventory').container.addItem(stack);
-    p.addTag('qc_given');
-    p.sendMessage('§bQuick Craft: §7dostal jsi menu item. Pravý klik / tap otevře menu (nebo napiš §f!qc§7).');
-  } catch { /* ignore */ }
+    player.getComponent('minecraft:inventory').container.addItem(stack);
+    player.addTag('qc_given');
+    player.sendMessage('§bQuick Craft: §7dostal jsi menu item. Pravý klik / tap otevře menu (nebo napiš §f!qc§7 / §f/scriptevent qc:menu§7).');
+  } catch (e) {
+    if (attempt < 5) system.runTimeout(() => giveMenuItem(player, attempt + 1), 40);
+    else console.warn('QuickCraft: menu item se nepodařilo předat: ' + e);
+  }
+}
+
+world.afterEvents.playerSpawn.subscribe((ev) => {
+  if (!ev.initialSpawn) return;
+  const p = ev.player;
+  system.runTimeout(() => giveMenuItem(p), 40);
 });
