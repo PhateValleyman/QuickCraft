@@ -44,7 +44,24 @@ function load(player, key, fallback) {
 function save(player, key, value) {
   try { player.setDynamicProperty('qc:' + key, JSON.stringify(value)); } catch { /* ignore */ }
 }
-const getSettings = (p) => ({ ...DEFAULTS, ...load(p, 'settings', {}) });
+function getSettings(p) {
+  const raw = load(p, 'settings', {});
+  const integer = (value, fallback, min, max) => {
+    const number = Number(value);
+    return Number.isInteger(number) ? Math.max(min, Math.min(max, number)) : fallback;
+  };
+  return {
+    pos: integer(raw.pos, DEFAULTS.pos, 0, 2),
+    rot: integer(raw.rot, DEFAULTS.rot, 0, 3),
+    mirror: integer(raw.mirror, DEFAULTS.mirror, 0, 3),
+    terrain: raw.terrain !== false,
+    anim: integer(raw.anim, DEFAULTS.anim, 0, 2),
+    secs: integer(raw.secs, DEFAULTS.secs, 1, 30),
+    dx: integer(raw.dx, DEFAULTS.dx, -30, 30),
+    dy: integer(raw.dy, DEFAULTS.dy, -15, 15),
+    dz: integer(raw.dz, DEFAULTS.dz, -30, 30),
+  };
+}
 const getCustoms = (p) => load(p, 'customs', []).filter((i) => i && typeof i.id === 'string' && /^[a-z0-9_:-]+$/.test(i.id) && Array.isArray(i.size) && i.size.length === 3);
 const customById = (p, id) => getCustoms(p).find((i) => i.id === id);
 const entryById = (p, id) => BY_ID.get(id) ?? (customById(p, id) ? { item: customById(p, id), cat: CUSTOM_CAT } : null);
@@ -340,6 +357,15 @@ function build(player, entry) {
     }
     const res = dim.runCommand(`structure load ${item.id} ${at}${anim}`);
     if (res && res.successCount === 0) throw new Error('příkaz nic neprovedl');
+    save(player, 'last_build', {
+      token: `${system.currentTick}-${Math.random().toString(36).slice(2)}`,
+      instanceId: `QC-${system.currentTick.toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+      structure: item.id,
+      dimension: dim.id,
+      origin: { x: x0, y: y0, z: z0 },
+      rot: cfg.rot,
+      mirror: cfg.mirror,
+    });
     const recent = [item.id, ...getRecent(player).filter((i) => i !== item.id)].slice(0, 12);
     save(player, 'recent', recent);
     notify(player, `§aPostaveno: §f${item.name} §8(${x0} ${y0} ${z0})`);

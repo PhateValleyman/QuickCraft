@@ -50,10 +50,8 @@ The stone is protected from accidental breaking.
 2. Select **🔵 Přesunout**.
 3. The structure is cleared while the control stone remains.
 4. Walk to the new location.
-5. Use `!qcplace`.
+5. Tap the moving control stone to confirm the new location.
 6. QuickCraft loads the same structure with the stored rotation/mirroring and moves the control stone to the new anchor.
-
-`!qccancel` cancels move mode without rebuilding the structure.
 
 > Current removal intentionally clears the registered structure bounding box. It does not yet snapshot and restore the terrain that was underneath the structure.
 
@@ -100,7 +98,7 @@ The in-game custom registration remains available for structures stored directly
 4. Enable cheats / commands — QuickCraft uses `/structure load`, which requires commands. citeturn2search0
 5. Build a structure normally. The control stone is created automatically after the successful QuickCraft build.
 
-The current pack targets Minecraft Bedrock **1.20.80+** with `@minecraft/server` **1.11.0** and `@minecraft/server-ui` **1.2.0**.
+The current pack targets Minecraft Bedrock **1.21.80+** with `@minecraft/server` **2.0.0** and `@minecraft/server-ui` **2.0.0**.
 
 ---
 
@@ -146,7 +144,7 @@ QuickCraft/
 
 - Control-stone detection is persistent through world dynamic properties, but the manager does not scan every existing world block for old control stones.
 - Removing a structure currently clears its registered bounding box instead of restoring the exact terrain that existed before the build.
-- Consecutive builds of the same structure are handled by a conservative fallback; the most reliable registration path is the normal QuickCraft build followed by the instance manager's detection.
+- Each successful build emits a unique internal ticket, so consecutive builds of the same structure are registered independently.
 - `.mcworld` / `.mctemplate` export remains a native Minecraft operation.
 - Commands / cheats are required for structure operations. citeturn2search0
 

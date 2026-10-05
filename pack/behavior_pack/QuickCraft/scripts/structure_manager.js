@@ -4,8 +4,6 @@
 // Instance names are stored independently from the structure template and can be used as teleport destinations.
 import { world, system } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
-import { world, system } from '@minecraft/server';
-import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
 import { CATEGORIES } from './catalog.js';
 import { teleportToInstance, warping } from './teleport.js';
 
@@ -14,6 +12,9 @@ const INSTANCES_KEY = 'qc:instances';
 const FAVS_KEY = 'qc:instance_fav';
 const MOVE_KEY = 'qc:move';
 const MENU_ITEM = 'qc:menu';
+const LAST_BUILD_KEY = 'last_build';
+const SEEN_BUILD_KEY = 'instance_seen_build';
+const MAX_INSTANCES = 100;
 const ROT_CMD = ['0_degrees', '90_degrees', '180_degrees', '270_degrees'];
 const MIRROR_CMD = ['none', 'x', 'z', 'xz'];
 const DEFAULTS = { pos: 0, rot: 0, mirror: 0, dx: 0, dy: 0, dz: 0 };
@@ -61,11 +62,24 @@ function getInstances() {
 }
 
 function saveInstances(instances) {
-    writeWorld(INSTANCES_KEY, instances.slice(-500));
+    // Keep the serialized dynamic property below Bedrock's practical string limit.
+    writeWorld(INSTANCES_KEY, instances.slice(-MAX_INSTANCES));
 }
 
 function getSettings(player) {
-    return { ...DEFAULTS, ...readPlayer(player, 'settings', {}) };
+    const raw = readPlayer(player, 'settings', {});
+    const integer = (value, fallback, min, max) => {
+        const number = Number(value);
+        return Number.isInteger(number) ? Math.max(min, Math.min(max, number)) : fallback;
+    };
+    return {
+        pos: integer(raw.pos, DEFAULTS.pos, 0, 2),
+        rot: integer(raw.rot, DEFAULTS.rot, 0, 3),
+        mirror: integer(raw.mirror, DEFAULTS.mirror, 0, 3),
+        dx: integer(raw.dx, DEFAULTS.dx, -30, 30),
+        dy: integer(raw.dy, DEFAULTS.dy, -15, 15),
+        dz: integer(raw.dz, DEFAULTS.dz, -30, 30),
+    };
 }
 
 function getCustom(player, id) {
@@ -186,11 +200,8 @@ function loadStructure(dimension, instance) {
 }
 
 function newId() {
-    const n = Math.floor(Math.random() * 0xffffff)
-        .toString(16)
-        .padStart(6, '0')
-        .toUpperCase();
-    return 'QC-' + n;
+    return 'QC-' + system.currentTick.toString(36).toUpperCase() + '-' +
+        Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0').toUpperCase();
 }
 
 function notify(player, message) {
@@ -247,6 +258,45 @@ function registerInstance(player, structureId) {
     } catch (e) {
         removeInstance(instance);
         console.warn('QuickCraft control stone error: ' + e);
+    }
+}
+
+function registerBuildTicket(player, ticket) {
+    if (!ticket || ticket.dimension !== player.dimension.id || !ticket.origin) return;
+    const item = getStructure(player, ticket.structure);
+    if (!item || !Array.isArray(item.size) || item.size.length !== 3) return;
+
+    const instances = getInstances();
+    if (ticket.instanceId && instances.some((instance) => instance.id === ticket.instanceId)) return;
+    if (instances.some((instance) => instance.dimension === ticket.dimension && samePos(instance.origin, ticket.origin))) return;
+
+    const rot = Number.isInteger(ticket.rot) ? ticket.rot : 0;
+    const mirror = Number.isInteger(ticket.mirror) ? ticket.mirror : 0;
+    const instance = {
+        id: ticket.instanceId ?? newId(),
+        structure: ticket.structure,
+        name: item.name ?? ticket.structure,
+        dimension: ticket.dimension,
+        origin: { ...ticket.origin },
+        size: effectiveSize(item.size, rot),
+        sourceSize: item.size,
+        rotation: ROT_CMD[rot] ?? ROT_CMD[0],
+        mirror: MIRROR_CMD[mirror] ?? MIRROR_CMD[0],
+        anim: null,
+        animSeconds: 0,
+        owner: player.name,
+        created: system.currentTick,
+        teleportEnabled: false,
+    };
+
+    instances.push(instance);
+    saveInstances(instances);
+    try {
+        setControlStone(player.dimension, instance);
+        notify(player, '§a🪨 Kontrolní kámen: §f' + instance.name);
+    } catch (error) {
+        removeInstance(instance);
+        console.warn('QuickCraft control stone error: ' + error);
     }
 }
 
@@ -470,12 +520,12 @@ async function openInstanceMenu(player, instance) {
     const f = new ActionFormData()
         .title('§l§b' + instance.name)
         .body(
-            '§7🌎 QuickCraft stavba\\n' +
-            '§7ID: §f' + instance.id + '\\n' +
+            '§7🌎 QuickCraft stavba\n' +
+            '§7ID: §f' + instance.id + '\n' +
             '§7Rozměry: §f' + instance.size.x + '×' +
-            instance.size.y + '×' + instance.size.z + '\\n' +
+            instance.size.y + '×' + instance.size.z + '\n' +
             '§7Pozice: §f' + instance.origin.x + ' ' +
-            instance.origin.y + ' ' + instance.origin.z + '\\n' +
+            instance.origin.y + ' ' + instance.origin.z + '\n' +
             '§7Šablona: §f' + instance.structure,
         )
         .button(
@@ -562,6 +612,13 @@ async function openInstanceMenu(player, instance) {
 function pollBuilds() {
     for (const player of world.getPlayers()) {
         try {
+            const ticket = readPlayer(player, LAST_BUILD_KEY, null);
+            const previousTicket = readPlayer(player, SEEN_BUILD_KEY, null);
+            if (ticket?.token && ticket.token !== previousTicket) {
+                registerBuildTicket(player, ticket);
+                writePlayer(player, SEEN_BUILD_KEY, ticket.token);
+            }
+
             const recent = readPlayer(player, 'recent', []);
             const previous = readPlayer(
                 player,
@@ -574,7 +631,8 @@ function pollBuilds() {
 
             const current = recent[0];
 
-            if (current && recentChanged) {
+            // Keep the legacy fallback for worlds created before build tickets existed.
+            if (current && recentChanged && !ticket?.token) {
                 registerInstance(player, current);
             }
 
@@ -592,6 +650,8 @@ function initializeSnapshots() {
             'instance_seen_recent',
             readPlayer(player, 'recent', []),
         );
+        const ticket = readPlayer(player, LAST_BUILD_KEY, null);
+        if (ticket?.token) writePlayer(player, SEEN_BUILD_KEY, ticket.token);
     }
 }
 

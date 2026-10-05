@@ -34,6 +34,7 @@ MCADDON         := $(DIST_DIR)/$(NAME).mcaddon
 ZIP             := zip
 ZIPFLAGS        := -r -q -X
 PYTHON          ?= python3
+NODE            ?= node
 
 EXCLUDES := \
 	-x "*.DS_Store" \
@@ -94,6 +95,15 @@ check:
 	@test -f "$(RP_DIR)/manifest.json" || (echo "   missing: $(RP_DIR)/manifest.json"; exit 1)
 	@command -v $(ZIP) >/dev/null 2>&1 || (echo "   'zip' not installed"; exit 1)
 	@command -v $(PYTHON) >/dev/null 2>&1 || (echo "   '$(PYTHON)' not installed"; exit 1)
+	@command -v $(NODE) >/dev/null 2>&1 || (echo "   '$(NODE)' not installed"; exit 1)
+	@echo ">> Checking JavaScript syntax..."
+	@for file in $(shell find $(BP_DIR)/scripts -type f -name '*.js' -print); do \
+		$(NODE) --check "$$file" || exit 1; \
+	done
+	@echo ">> Checking JSON resources..."
+	@for file in $(shell find $(PACK_DIR) -type f -name '*.json' -print); do \
+		$(PYTHON) -m json.tool "$$file" >/dev/null || exit 1; \
+	done
 	@echo "   OK."
 
 clean:
@@ -110,7 +120,7 @@ help:
 	@echo "  bp        build only the behavior pack (.mcpack)"
 	@echo "  rp        build only the resource pack (.mcpack)"
 	@echo "  addon     build only the .mcaddon"
-	@echo "  check     verify folders, manifests, Python and zip"
+	@echo "  check     verify folders, manifests, scripts, JSON, Python and zip"
 	@echo "  clean     remove dist/"
 	@echo "  rebuild   clean + all"
 	@echo "  help      show this message"
