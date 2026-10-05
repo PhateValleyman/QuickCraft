@@ -88,7 +88,7 @@ function facing(player) {
     return v.z > 0 ? 'S' : 'N';
 }
 
-function calculateOrigin(player, size) {
+function calculateOrigin(player, size, yOffset = 0) {
     const cfg = getSettings(player);
     const s = effectiveSize(size, cfg.rot);
     const px = Math.floor(player.location.x);
@@ -126,7 +126,7 @@ function calculateOrigin(player, size) {
 
     return {
         x: x + cfg.dx,
-        y: py + cfg.dy,
+        y: py + yOffset + cfg.dy,
         z: z + cfg.dz,
     };
 }
@@ -209,7 +209,7 @@ function registerInstance(player, structureId) {
 
     const cfg = getSettings(player);
     const size = effectiveSize(item.size, cfg.rot);
-    const origin = calculateOrigin(player, item.size);
+    const origin = calculateOrigin(player, item.size, Number.isInteger(item.y) ? item.y : 0);
     const dimension = player.dimension;
     const instances = getInstances();
 
@@ -354,6 +354,23 @@ function updateMovePreview(player) {
     if (!target || samePos(target, move.target)) return;
 
     try {
+        const targetBlock = player.dimension.getBlock(target);
+        const targetType = targetBlock?.typeId ?? '';
+        const isAir =
+            targetType === 'minecraft:air' ||
+            targetType === 'minecraft:cave_air' ||
+            targetType === 'minecraft:void_air';
+
+        if (!isAir) return;
+
+        const occupied = getInstances().some(
+            (i) =>
+                i.id !== instance.id &&
+                i.dimension === player.dimension.id &&
+                samePos(i.origin, target),
+        );
+        if (occupied) return;
+
         clearMarker(player.dimension, move.target);
         move.target = target;
         writePlayer(player, MOVE_KEY, move);
