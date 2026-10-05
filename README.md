@@ -178,3 +178,23 @@ QuickCraft now tracks each structure placed through the menu as a persistent **s
 - Instance metadata is persisted in world dynamic properties and includes an instance ID, source structure, origin, dimensions, rotation, mirror, owner, and teleport readiness.
 
 The structure catalog dimensions are generated from the actual `.mcstructure` files by `tools/scan_structures.py`; manual dimension entry is therefore not required for built-in structures.
+
+
+## 🌎 WAYpoint-style teleport module
+
+QuickCraft now uses a dedicated teleport presentation derived from the cinematic travel approach of
+[PhateValleyman/WAYpoint](https://github.com/PhateValleyman/WAYpoint).
+
+- Every registered structure can be a teleport destination.
+- The control menu exposes **🌎 Teleportovat**.
+- Movement and camera input are temporarily locked during travel.
+- The camera rises above the source, transitions to the destination, and returns to the player.
+- Cross-dimension travel is handled through the same module.
+- The existing QuickCraft **move-preview** behavior is kept unchanged: the control marker still follows the player's view and a tap confirms placement.
+
+The QuickCraft control marker is now the custom block `qc:control` and uses the existing transparent
+`textures/items/qc_menu.png` artwork.
+
+> Note: Minecraft Bedrock flipbook animation requires a vertical sprite strip; the existing 1000×1000 `qc_menu.png`
+> is intentionally preserved unchanged. The control block is therefore already transparent and visually identical to the source artwork,
+> while the animated sprite atlas can be added without changing the original menu icon.
