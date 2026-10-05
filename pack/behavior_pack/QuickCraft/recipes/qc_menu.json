@@ -1,0 +1,29 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "qc:menu"
+    },
+    "tags": ["crafting_table"],
+    "pattern": [
+      "ACA",
+      "CBC",
+      "ACA"
+    ],
+    "key": {
+      "A": {
+        "item": "minecraft:amethyst_shard"
+      },
+      "B": {
+        "item": "minecraft:compass"
+      },
+      "C": {
+        "item": "minecraft:gold_nugget"
+      }
+    },
+    "result": {
+      "item": "qc:menu",
+      "count": 1
+    }
+  }
+}

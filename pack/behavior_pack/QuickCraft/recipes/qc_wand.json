@@ -1,0 +1,26 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "qc:wand"
+    },
+    "tags": ["crafting_table"],
+    "pattern": [
+      "  A",
+      " B ",
+      "B  "
+    ],
+    "key": {
+      "A": {
+        "item": "minecraft:echo_shard"
+      },
+      "B": {
+        "item": "minecraft:stick"
+      }
+    },
+    "result": {
+      "item": "qc:wand",
+      "count": 1
+    }
+  }
+}

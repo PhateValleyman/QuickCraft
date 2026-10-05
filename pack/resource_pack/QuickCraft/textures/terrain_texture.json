@@ -4,6 +4,12 @@
   "texture_data": {
     "qc_menu": {
       "textures": "textures/items/qc_menu"
+    },
+    "qc_guide": {
+      "textures": "textures/items/qc_menu"
+    },
+    "qc_wand": {
+      "textures": "textures/items/qc_menu"
     }
   }
 }

@@ -5,6 +5,7 @@ import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
 import { CATEGORIES } from './catalog.js';
 
 const MENU_ITEM = 'qc:menu';
+const WAND_ITEM = 'qc:wand';
 const MENU_ITEM_NAME = '§l§bQuick Craft §r§7· menu staveb';
 const PAGE_SIZE = 20;
 const BIG_VOLUME = 150000;
@@ -387,7 +388,7 @@ function openMenu(player) {
 }
 
 world.afterEvents.itemUse.subscribe((ev) => {
-  if (ev.itemStack?.typeId === MENU_ITEM) openMenu(ev.source);
+  if (ev.itemStack?.typeId === MENU_ITEM || ev.itemStack?.typeId === WAND_ITEM) openMenu(ev.source);
 });
 
 // chat příkaz (jen pokud ho daná verze API podporuje)

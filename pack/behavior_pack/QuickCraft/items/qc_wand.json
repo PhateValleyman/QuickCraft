@@ -1,0 +1,21 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:item": {
+    "description": {
+      "identifier": "qc:wand",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "texture": "qc_wand"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:display_name": {
+        "value": "QuickCraft – stavební hůl"
+      },
+      "minecraft:hand_equipped": true
+    }
+  }
+}

@@ -18,6 +18,8 @@ A lightweight Minecraft Bedrock (PE) add-on that adds a clean menu for quickly b
 - **Move mode** — when a structure is moved, the structure disappears while its control stone remains visible until the new location is chosen.
 - **World / template export** — guided native `.mcworld` / `.mctemplate` export.
 - **Custom QuickCraft UI** — the resource pack adds a branded form panel with a crafting-table theme to QuickCraft server forms.
+- **Craftable tools** — the menu, building wand and in-game guide are available through custom crafting recipes.
+- **Unified QuickCraft icons** — custom items and the `qc:control` block resolve their icons through one shared resource/terrain atlas.
 
 ---
 
@@ -100,6 +102,18 @@ The in-game custom registration remains available for structures stored directly
 5. Build a structure normally. The control stone is created automatically after the successful QuickCraft build.
 
 The current pack targets Minecraft Bedrock **1.21.80+** with `@minecraft/server` **2.0.0** and `@minecraft/server-ui` **2.0.0**.
+
+### Crafting recipes and in-game guide
+
+The behavior pack includes three recipes:
+
+| Item | Recipe ingredients | Behavior |
+|---|---|---|
+| `qc:menu` | Compass, amethyst shards and gold nuggets | Opens the QuickCraft structure menu. |
+| `qc:wand` | Echo shard and sticks | Opens the same menu as an alternative building tool. |
+| `qc:guide` | Book, paper, ink sac and amethyst shard | Opens a six-page in-game guide covering setup, items, building, custom structures and control stones. |
+
+All three item definitions use the shared `qc_menu` artwork through both `textures/item_texture.json` and `textures/terrain_texture.json`. This keeps behavior-pack item icons, the control block and resource-pack atlas entries consistent.
 
 ### Custom form UI
 
