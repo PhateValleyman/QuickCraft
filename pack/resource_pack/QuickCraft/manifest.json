@@ -1,0 +1,29 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "QuickCraft",
+    "description": "Custom Quick Structure Craft",
+    "uuid": "b609f260-dd6c-463d-b298-611153d4eeab",
+    "version": [
+      2,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      20,
+      80
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "427a57a6-8f0e-4b8f-afbe-c8e92da0b422",
+      "version": [
+        2,
+        0,
+        0
+      ]
+    }
+  ]
+}

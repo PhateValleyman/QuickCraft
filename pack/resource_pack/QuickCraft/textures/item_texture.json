@@ -1,0 +1,9 @@
+{
+  "resource_pack_name": "quickcraft",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "qc_menu": {
+      "textures": "textures/items/qc_menu"
+    }
+  }
+}
