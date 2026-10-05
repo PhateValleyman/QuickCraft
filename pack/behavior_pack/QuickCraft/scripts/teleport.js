@@ -1,7 +1,7 @@
 // QuickCraft teleport module.
 // Adapted from the cinematic travel concept used by PhateValleyman/WAYpoint.
 // The QuickCraft control stone remains the source of truth; this module only handles travel presentation.
-import { InputPermissionCategory, system } from '@minecraft/server';
+import { InputPermissionCategory, system, world } from '@minecraft/server';
 
 const PRESET = 'minecraft:free';
 const BUSY = new Set();
@@ -92,18 +92,6 @@ export async function teleportToInstance(player, instance) {
 
     const dimension = player.dimension;
     const sameDimension = dimension.id === instance.dimension;
-    const targetDimension = player.dimension.world?.getDimension
-        ? player.dimension.world.getDimension(instance.dimension)
-        : undefined;
-
-    // World.getDimension is available on current runtimes; use the public world API first.
-    let target = null;
-    try {
-        target = player.dimension === undefined
-            ? undefined
-            : undefined;
-    } catch {}
-
     BUSY.add(player.id);
     lock(player, true);
 
@@ -122,12 +110,12 @@ export async function teleportToInstance(player, instance) {
         if (!sameDimension) {
             fade(player, 0.35, 0.35, 0.35);
             await sleep(7);
-            player.teleport(destination, { dimension: player.dimension.world.getDimension(instance.dimension) });
+            player.teleport(destination, { dimension: world.getDimension(instance.dimension) });
             await sleep(12);
         } else {
             camera(player, above(instance.origin, 12), lookDown(), 12);
             await sleep(12);
-            player.teleport(destination, { dimension: player.dimension });
+            player.teleport(destination, { dimension: world.getDimension(instance.dimension) });
             sound(player, 'mob.endermen.portal', 0.55, 1.0);
             await sleep(8);
         }
