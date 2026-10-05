@@ -37,7 +37,7 @@ function camera(player, location, rotation, easeTicks = 0) {
         if (easeTicks > 0) {
             options.easeOptions = {
                 easeTime: easeTicks / 20,
-                easeType: 'InOutCubic',
+                easeType: 'Linear',
             };
         }
         player.camera.setCamera(PRESET, options);
