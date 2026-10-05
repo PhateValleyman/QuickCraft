@@ -162,3 +162,19 @@ The repository does not include a license file. If you plan to distribute the ad
 
 - **PhateValleyman** — author of the add-on.
 - The Minecraft Bedrock community for the scripting API possibilities.
+
+## 🪨 Structure Instances & Control Stones
+
+QuickCraft now tracks each structure placed through the menu as a persistent **structure instance**.
+
+- Every placed structure receives a **control stone** at its exact structure origin corner.
+- Tapping the control stone opens administration for that specific structure.
+- Instances can be added to favorites, renamed, or removed.
+- **Move mode** removes the structure but leaves its control stone behind.
+- While moving, the control stone follows the player's view using a block raycast.
+- Aim at a new position and **tap the control stone** to place the structure there.
+- Occupied target blocks and other QuickCraft control stones are not overwritten by the move preview.
+- Instance names are independent of the source `.mcstructure` name, so they can later be used as stable teleport destinations.
+- Instance metadata is persisted in world dynamic properties and includes an instance ID, source structure, origin, dimensions, rotation, mirror, owner, and teleport readiness.
+
+The structure catalog dimensions are generated from the actual `.mcstructure` files by `tools/scan_structures.py`; manual dimension entry is therefore not required for built-in structures.
