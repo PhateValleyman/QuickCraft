@@ -7,67 +7,100 @@ A lightweight Minecraft Bedrock (PE) add-on that adds a clean menu for quickly b
 ## ✨ Features
 
 - **Visual structure menu** — categories such as *Starter Homes*, *Farms*, *Decorations*, and more.
-- **Open the menu in three ways:**
-  - Right-click / tap with the **Quick Craft Menu** item (given automatically when you first join the world).
-  - Chat command `!qc` or `!menu`.
-  - Command `/scriptevent qc:menu`.
-- **Search** — find structures by name (e.g. "castle", "farm", "dragon").
+- **Open the menu in three ways:** Quick Craft item, `!qc` / `!menu`, or `/scriptevent qc:menu`.
+- **Search** — find structures by name.
 - **Favorites and recently built** — quick access to frequently used builds.
-- **Build settings:**
-  - Placement: In front of player, Corner at player, or Centered on player.
-  - Rotation (0°, 90°, 180°, 270°) and mirroring (X, Z, X+Z).
-  - Optional terrain clearing (foundation `_x` variant).
-  - Build animation: by layers, by blocks, or none.
-  - Fine offsets along X, Y, Z.
+- **Build settings** — placement, rotation, mirroring, terrain foundation, animation and offsets.
+- **Automatic structure dimensions** — every `.mcstructure` is scanned at build time and its exact X/Y/Z size is generated into the add-on.
 - **Custom structures** — register your own `.mcstructure` files from the behavior pack or world.
-- **World / template export** — a guided flow for native `.mcworld` / `.mctemplate` export (the actual export is confirmed by Minecraft outside the add-on).
+- **Persistent structure instances** — every structure built through QuickCraft gets a visible control stone anchored to its top corner.
+- **Control stone administration** — tap a control stone to favorite, move or remove that exact placed structure.
+- **Move mode** — when a structure is moved, the structure disappears while its control stone remains visible until the new location is chosen.
+- **World / template export** — guided native `.mcworld` / `.mctemplate` export.
+
+---
+
+## 🪨 Structure Control Stones
+
+QuickCraft now treats a placed structure as an **instance**, not just a one-time `/structure load` operation.
+
+After a successful build, QuickCraft records:
+
+- structure ID and name,
+- dimension,
+- exact origin,
+- effective dimensions after rotation,
+- rotation and mirroring,
+- owner and instance ID.
+
+A `minecraft:lodestone` is placed at the **top corner anchor** of the instance. The stone is outside the structure's bounding box, so it does not replace one of the structure's blocks.
+
+Tap the stone to open:
+
+- ⭐ **Add/remove from favorites**
+- 🔵 **Move**
+- 🔴 **Remove**
+- ℹ **Information**
+
+The stone is protected from accidental breaking.
+
+### Moving a structure
+
+1. Tap the control stone.
+2. Select **🔵 Přesunout**.
+3. The structure is cleared while the control stone remains.
+4. Walk to the new location.
+5. Use `!qcplace`.
+6. QuickCraft loads the same structure with the stored rotation/mirroring and moves the control stone to the new anchor.
+
+`!qccancel` cancels move mode without rebuilding the structure.
+
+> Current removal intentionally clears the registered structure bounding box. It does not yet snapshot and restore the terrain that was underneath the structure.
+
+---
+
+## 📐 Automatic `.mcstructure` Mapping
+
+The repository contains `tools/scan_structures.py`.
+
+It reads the real Bedrock `.mcstructure` NBT files and extracts the `size` list containing the exact X/Y/Z bounds. `.mcstructure` files are uncompressed little-endian NBT and the `size` field is the authoritative three-integer structure size. citeturn10search0turn10search3
+
+Run:
+
+```bash
+# Scan every structure and generate the exact dimension map.
+make scan
+```
+
+The generated file is:
+
+```text
+pack/behavior_pack/QuickCraft/scripts/structure_dimensions.js
+```
+
+`make`, `make bp` and `make addon` run the scanner automatically before packaging.
+
+---
+
+## 🧩 Custom Structures
+
+The custom structure flow no longer needs to depend on manually guessed dimensions in the build system. Put the `.mcstructure` into `behavior_pack/QuickCraft/structures/` and run the scanner/build.
+
+The Bedrock structure path determines the structure identifier; for example `structures/house.mcstructure` maps to the default `mystructure:house` namespace. citeturn10search0
+
+The in-game custom registration remains available for structures stored directly in a world.
 
 ---
 
 ## 📦 Installation
 
-1. Download the repository contents (or build an `.mcaddon` by combining the behavior and resource packs).
-2. In Minecraft Bedrock Edition, go to **Settings → Storage → Resource Packs** and import the resource pack.
-3. Then import the behavior pack in the same way.
-4. When creating a new world (or in an existing world's settings), enable both packs:
-   - **QuickCraft** (behavior pack) — must be active, otherwise the menu will not work.
-   - **QuickCraft** (resource pack) — provides the menu item texture.
-5. Make sure **cheats / commands** are enabled in the world — the add-on uses `/structure load`.
+1. Build `QuickCraft.mcaddon`, or use the generated packs from `dist/`.
+2. Import the behavior and resource packs into Minecraft Bedrock.
+3. Enable both packs in the world.
+4. Enable cheats / commands — QuickCraft uses `/structure load`, which requires commands. citeturn2search0
+5. Build a structure normally. The control stone is created automatically after the successful QuickCraft build.
 
-> **Note:** The add-on requires Minecraft Bedrock **1.20.80** or newer and the modules `@minecraft/server` (1.11.0) and `@minecraft/server-ui` (1.2.0).
-
----
-
-## 🎮 Usage
-
-### Opening the menu
-
-| Method | How |
-|---|---|
-| Item | Right-click / tap with **Quick Craft Menu** |
-| Chat | Type `!qc` or `!menu` |
-| Command | `/scriptevent qc:menu` |
-
-### Building a structure
-
-1. Open the menu and choose a category (or use **Search**).
-2. Click the structure you want.
-3. In the structure detail view you can:
-   - **Build** — immediately build the structure using the current settings.
-   - **Edit build settings** — rotation, mirroring, animation, offsets, etc.
-   - **Add to favorites** — the structure appears in the Favorites section.
-4. After building, the structure is saved to **Recently Built**.
-
-### Build settings
-
-In **Settings → Build Settings** you can change:
-
-- **Placement** — In front of me / Corner at me / Centered on me.
-- **Rotation** — 0°, 90°, 180°, 270°.
-- **Mirroring** — None / X / Z / X+Z.
-- **Foundation** — first clear the terrain using the `_x` structure variant.
-- **Animation** — None / By layers / By blocks + duration in seconds.
-- **Offsets** — X, Y, Z (in blocks).
+The current pack targets Minecraft Bedrock **1.20.80+** with `@minecraft/server` **1.11.0** and `@minecraft/server-ui` **1.2.0**.
 
 ---
 
@@ -75,59 +108,47 @@ In **Settings → Build Settings** you can change:
 
 ```text
 QuickCraft/
+├── Makefile
+├── tools/
+│   └── scan_structures.py
 └── pack/
     ├── behavior_pack/
     │   └── QuickCraft/
-    │       ├── functions/          # .mcfunction files (lists, helper functions)
-    │       ├── items/              # qc_menu.json – menu item definition
-    │       ├── scripts/            # main.js, catalog.js – menu and building logic
-    │       ├── structures/         # .mcstructure files (+ _x variants)
-    │       ├── manifest.json
-    │       └── pack_icon.png
+    │       ├── functions/
+    │       ├── items/
+    │       ├── scripts/
+    │       │   ├── main.js
+    │       │   ├── catalog.js
+    │       │   ├── bootstrap.js
+    │       │   ├── structure_manager.js
+    │       │   └── structure_dimensions.js  # generated by make scan
+    │       ├── structures/
+    │       └── manifest.json
     └── resource_pack/
         └── QuickCraft/
-            ├── textures/           # item_texture.json + icons
-            ├── manifest.json
-            ├── QuickCraft_RP.mcpack
-            └── pack_icon.png
 ```
 
-### Key Files
+### Key files
 
-| File | Description |
+| File | Purpose |
 |---|---|
-| `scripts/main.js` | Main logic — opening the menu, forms, building, settings. |
-| `scripts/catalog.js` | Automatically generated catalog of all structures (categories, dimensions, Y offset). |
-| `items/qc_menu.json` | Defines the `qc:menu` item (Quick Craft Menu). |
-| `functions/qc.mcfunction` | Helper function for opening the menu (if used). |
-| `functions/list*.mcfunction` | Structure lists used to generate the catalog. |
-| `structures/*.mcstructure` | The structures themselves. `*_x` variants serve as foundations for terrain clearing. |
+| `scripts/main.js` | Existing QuickCraft menu and build engine. |
+| `scripts/structure_manager.js` | Persistent structure instances and control stones. |
+| `scripts/bootstrap.js` | Loads the original menu and instance manager together. |
+| `scripts/catalog.js` | Existing catalog/categories. |
+| `scripts/structure_dimensions.js` | Generated exact `.mcstructure` dimensions. |
+| `tools/scan_structures.py` | Little-endian NBT `.mcstructure` scanner. |
+| `structures/*.mcstructure` | Structure templates. |
 
 ---
 
-## 🧩 Custom Structures
+## ⚠️ Current Limitations
 
-The add-on can also work with your own builds:
-
-1. Place a `.mcstructure` file into `behavior_pack/QuickCraft/structures/` and re-import the add-on.
-   - Or save the structure directly in the world with `/structure save <id> ...`.
-2. In the menu, go to **Custom Structures → Add / Import**.
-3. Enter:
-   - **Structure ID** (file name without `.mcstructure`, e.g. `my_cabin`).
-   - **Menu name** (e.g. *My Cabin*).
-   - **Dimensions X Y Z** (e.g. `10 8 12`).
-   - **Height offset** (-15 to +15).
-4. The structure is registered and can be built like any built-in structure.
-
-> The add-on cannot open a system file picker — the structure is only registered in the menu and verified when building.
-
----
-
-## ⚠️ Limitations
-
-- **Large structures** (over ~150,000 blocks) are marked with a ⚠ warning — the surrounding area must be loaded and you should stand in the middle of an open space.
-- **Export** of `.mcworld` / `.mctemplate` is not performed by the add-on itself — it only shows instructions for exporting through Minecraft's native menu.
-- The add-on requires commands (cheats) to be enabled in the world.
+- Control-stone detection is persistent through world dynamic properties, but the manager does not scan every existing world block for old control stones.
+- Removing a structure currently clears its registered bounding box instead of restoring the exact terrain that existed before the build.
+- Consecutive builds of the same structure are handled by a conservative fallback; the most reliable registration path is the normal QuickCraft build followed by the instance manager's detection.
+- `.mcworld` / `.mctemplate` export remains a native Minecraft operation.
+- Commands / cheats are required for structure operations. citeturn2search0
 
 ---
 
