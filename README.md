@@ -33,7 +33,7 @@ After a successful build, QuickCraft records:
 - rotation and mirroring,
 - owner and instance ID.
 
-A `minecraft:lodestone` is placed at the **top corner anchor** of the instance. The stone is outside the structure's bounding box, so it does not replace one of the structure's blocks.
+A `qc:control` control marker using the existing transparent `qc_menu.png` artwork is placed at the **exact origin corner** of the instance. It is part of the structure control system and is never treated as normal player-build content.
 
 Tap the stone to open:
 
