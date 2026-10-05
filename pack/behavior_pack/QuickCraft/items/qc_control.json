@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:item": {
+    "description": {
+      "identifier": "qc:control_item",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "qc_menu"
+        }
+      },
+      "minecraft:max_stack_size": 64,
+      "minecraft:display_name": {
+        "value": "§l§bQuickCraft §r§7· kontrolní blok"
+      },
+      "minecraft:block_placer": {
+        "block": "qc:control"
+      },
+      "minecraft:use_modifiers": {
+        "use_duration": 0.8,
+        "movement_modifier": 1.0
+      }
+    }
+  }
+}

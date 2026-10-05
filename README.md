@@ -92,6 +92,16 @@ The in-game custom registration remains available for structures stored directly
 
 ---
 
+### Control block item (`qc:control_item`)
+
+Take **QuickCraft · kontrolní blok** from the creative inventory (category *Items*):
+
+- **Long hold** (~0.8 s) with the item in hand opens the build menu.
+- **Short tap** places the block as a standalone control point. Tap the placed block to get the menu: Build menu, teleport, rename, move, remove.
+- The long-hold menu is ignored while you are choosing a new position for a moved structure.
+
+---
+
 ## 📦 Installation
 
 1. Build `QuickCraft.mcaddon`, or use the generated packs from `dist/`.

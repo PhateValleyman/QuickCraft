@@ -352,7 +352,7 @@ function build(player, entry) {
 
 // ---------- spouštění menu ----------
 const opening = new Set();
-function openMenu(player) {
+export function openMenu(player) {
   if (opening.has(player.id)) return;
   opening.add(player.id);
   run(player).catch((e) => console.warn('QuickCraft menu error: ' + e)).finally(() => opening.delete(player.id));

@@ -6,12 +6,14 @@ import { world, system } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
 import { CATEGORIES } from './catalog.js';
 import { teleportToInstance, warping } from './teleport.js';
+import { openMenu } from './main.js';
 
 const CONTROL_BLOCK = 'qc:control';
 const INSTANCES_KEY = 'qc:instances';
 const FAVS_KEY = 'qc:instance_fav';
 const MOVE_KEY = 'qc:move';
 const MENU_ITEM = 'qc:menu';
+const CONTROL_ITEM = 'qc:control_item';
 const ROT_CMD = ['0_degrees', '90_degrees', '180_degrees', '270_degrees'];
 const MIRROR_CMD = ['none', 'x', 'z', 'xz'];
 const DEFAULTS = { pos: 0, rot: 0, mirror: 0, dx: 0, dy: 0, dz: 0 };
@@ -263,6 +265,35 @@ function registerInstance(player, structureId) {
     }
 }
 
+// A control block placed by hand (tap with the qc:control_item) becomes a standalone
+// control point: build menu, teleport destination, rename, move, remove.
+function registerMarker(player, block) {
+    const dimension = block.dimension;
+    const origin = { x: block.location.x, y: block.location.y, z: block.location.z };
+    if (findAt(dimension.id, origin)) return;
+
+    const markers = getInstances().filter((i) => i.kind === 'marker').length;
+    const instance = {
+        id: newId(),
+        kind: 'marker',
+        structure: null,
+        name: 'Kontrolní blok ' + (markers + 1),
+        dimension: dimension.id,
+        origin,
+        size: { x: 1, y: 1, z: 1 },
+        sourceSize: [1, 1, 1],
+        rotation: ROT_CMD[0],
+        mirror: MIRROR_CMD[0],
+        anim: null,
+        animSeconds: 0,
+        owner: player.name,
+        created: system.currentTick,
+        teleportEnabled: true,
+    };
+    saveInstances([...getInstances(), instance]);
+    notify(player, '§a🪨 Kontrolní blok položen: §f' + instance.name + ' §7(klepni na něj pro menu)');
+}
+
 async function renameInstance(player, instance) {
     const form = new ModalFormData()
         .title('§l§ePřejmenovat stavbu')
@@ -419,7 +450,7 @@ function placeMoved(player, instance) {
         clearMarker(player.dimension, target);
         instance.origin = target;
 
-        loadStructure(player.dimension, instance);
+        if (instance.kind !== 'marker') loadStructure(player.dimension, instance);
         setControlStone(player.dimension, instance);
 
         saveInstances(
@@ -479,97 +510,67 @@ async function openInstanceMenu(player, instance) {
     const favs = readPlayer(player, FAVS_KEY, []);
     const favorite = favs.includes(instance.id);
     const moving = readPlayer(player, MOVE_KEY, null);
+    const isMarker = instance.kind === 'marker';
+    const actions = [];
 
     const f = new ActionFormData()
         .title('§l§b' + instance.name)
         .body(
-            '§7🌎 QuickCraft stavba\n' +
+            '§7🌎 ' + (isMarker ? 'QuickCraft kontrolní blok' : 'QuickCraft stavba') + '\n' +
             '§7ID: §f' + instance.id + '\n' +
-            '§7Rozměry: §f' + instance.size.x + '×' +
-            instance.size.y + '×' + instance.size.z + '\n' +
+            (isMarker ? '' : '§7Rozměry: §f' + instance.size.x + '×' +
+                instance.size.y + '×' + instance.size.z + '\n') +
             '§7Pozice: §f' + instance.origin.x + ' ' +
-            instance.origin.y + ' ' + instance.origin.z + '\n' +
-            '§7Šablona: §f' + instance.structure,
-        )
-        .button(
-            '§l§2⭐ ' +
-            (favorite ? 'Odebrat z oblíbených' : 'Přidat k oblíbeným'),
-        )
-        .button('§l§b🔵 Přesunout')
-        .button('§l§e✏ Přejmenovat')
-        .button('§l§d🌎 Teleportovat')
-        .button('§l§c🔴 Odstranit')
-        .button('§l§eℹ Informace')
-        .button('§l§8Zavřít');
+            instance.origin.y + ' ' + instance.origin.z +
+            (isMarker ? '' : '\n§7Šablona: §f' + instance.structure),
+        );
+
+    const add = (label, handler) => {
+        f.button(label);
+        actions.push(handler);
+    };
 
     if (moving?.instanceId === instance.id) {
-        f.button('§l§6🎯 Umístit na zaměřené místo');
+        add('§l§6🎯 Umístit na zaměřené místo', () => placeMoved(player, instance));
     }
-
-    const result = await showForm(player, f);
-    if (result.canceled) return;
-
-    if (result.selection === 0) {
-        const next = favorite
-            ? favs.filter((id) => id !== instance.id)
-            : [...favs, instance.id];
-
-        writePlayer(player, FAVS_KEY, next);
-        notify(
+    if (isMarker) {
+        add('§l§2🏗 Build menu', () => openMenu(player));
+    }
+    add('§l§2⭐ ' + (favorite ? 'Odebrat z oblíbených' : 'Přidat k oblíbeným'), () => {
+        writePlayer(
             player,
-            favorite
-                ? '§eOdebráno z oblíbených.'
-                : '§aPřidáno k oblíbeným.',
+            FAVS_KEY,
+            favorite ? favs.filter((id) => id !== instance.id) : [...favs, instance.id],
         );
-        return;
-    }
-
-    if (result.selection === 1) {
-        beginMove(player, instance);
-        return;
-    }
-
-    if (result.selection === 2) {
-        await renameInstance(player, instance);
-        return;
-    }
-
-    if (result.selection === 3) {
-        await openTeleportMenu(player, instance);
-        return;
-    }
-
-    if (result.selection === 4) {
+        notify(player, favorite ? '§eOdebráno z oblíbených.' : '§aPřidáno k oblíbeným.');
+    });
+    add('§l§b🔵 Přesunout', () => beginMove(player, instance));
+    add('§l§e✏ Přejmenovat', () => renameInstance(player, instance));
+    add('§l§d🌎 Teleportovat', () => openTeleportMenu(player, instance));
+    add('§l§c🔴 Odstranit', () => {
         try {
             clearStructure(player.dimension, instance);
             removeInstance(instance);
-            writePlayer(
-                player,
-                FAVS_KEY,
-                favs.filter((id) => id !== instance.id),
-            );
+            writePlayer(player, FAVS_KEY, favs.filter((id) => id !== instance.id));
             notify(player, '§cOdstraněno: §f' + instance.name);
         } catch {
             notify(player, '§cOdstranění se nepodařilo.');
         }
-        return;
-    }
-
-    if (result.selection === 5) {
+    });
+    add('§l§eℹ Informace', () => {
         notify(
             player,
             '§e' + instance.name + ' §7· ' +
-            instance.size.x + '×' + instance.size.y + '×' +
-            instance.size.z + ' · ' +
-            instance.origin.x + ' ' + instance.origin.y + ' ' +
-            instance.origin.z,
+            instance.size.x + '×' + instance.size.y + '×' + instance.size.z + ' · ' +
+            instance.origin.x + ' ' + instance.origin.y + ' ' + instance.origin.z,
         );
-        return;
-    }
+    });
+    f.button('§l§8Zavřít');
 
-    if (result.selection === 7 && moving?.instanceId === instance.id) {
-        placeMoved(player, instance);
-    }
+    const result = await showForm(player, f);
+    if (result.canceled) return;
+    const action = actions[result.selection];
+    if (action) await action();
 }
 
 function pollBuilds() {
@@ -677,4 +678,20 @@ system.runInterval(pollBuilds, 5);
 // The menu item remains owned by main.js; this listener is intentionally empty.
 world.afterEvents.itemUse.subscribe((event) => {
     if (event.itemStack?.typeId !== MENU_ITEM) return;
+});
+
+// Tap with the control item: the block is placed by the game (block_placer);
+// register it as a standalone control point.
+world.afterEvents.playerPlaceBlock.subscribe((event) => {
+    if (event.block.typeId !== CONTROL_BLOCK) return;
+    registerMarker(event.player, event.block);
+});
+
+// Long hold with the control item (item use_duration completed) opens the build menu.
+// Does not apply while the player is choosing a new position for a moved structure.
+world.afterEvents.itemCompleteUse.subscribe((event) => {
+    if (event.itemStack?.typeId !== CONTROL_ITEM) return;
+    const player = event.source;
+    if (readPlayer(player, MOVE_KEY, null)?.instanceId) return;
+    openMenu(player);
 });
