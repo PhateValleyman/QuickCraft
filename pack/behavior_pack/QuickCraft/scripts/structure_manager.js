@@ -5,8 +5,9 @@
 import { world, system } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
 import { CATEGORIES } from './catalog.js';
+import { teleportToInstance, warping } from './teleport.js';
 
-const CONTROL_BLOCK = 'minecraft:lodestone';
+const CONTROL_BLOCK = 'qc:control';
 const INSTANCES_KEY = 'qc:instances';
 const FAVS_KEY = 'qc:instance_fav';
 const MOVE_KEY = 'qc:move';
@@ -420,6 +421,45 @@ function placeMoved(player, instance) {
     }
 }
 
+async function openTeleportMenu(player, current) {
+    const targets = getInstances()
+        .filter((i) => i.id !== current.id)
+        .sort((a, b) => a.name.localeCompare(b.name, 'cs'));
+
+    if (!targets.length) {
+        notify(player, '§7Zatím nemáš žádnou další uloženou stavbu.');
+        return;
+    }
+
+    const form = new ActionFormData()
+        .title('§l§b🌎 Teleport')
+        .body('§7Vyber stavbu, ke které chceš cestovat.');
+
+    for (const target of targets) {
+        const dimension = target.dimension === player.dimension.id
+            ? '§8stejná dimenze'
+            : '§5jiná dimenze';
+        form.button(
+            '§l§f' + target.name + '\n§r' + dimension,
+        );
+    }
+
+    form.button('§l§8Zavřít');
+
+    const result = await form.show(player);
+    if (result.canceled || result.selection === targets.length) return;
+
+    const target = targets[result.selection];
+    if (!target || warping(player)) return;
+
+    const ok = await teleportToInstance(player, target);
+    if (ok) {
+        notify(player, '§a🌎 Přeneseno ke stavbě: §f' + target.name);
+    } else {
+        notify(player, '§cTeleport se nepodařil.');
+    }
+}
+
 async function openInstanceMenu(player, instance) {
     const favs = readPlayer(player, FAVS_KEY, []);
     const favorite = favs.includes(instance.id);
@@ -428,7 +468,7 @@ async function openInstanceMenu(player, instance) {
     const f = new ActionFormData()
         .title('§l§b' + instance.name)
         .body(
-            '§7🪨 QuickCraft stavba\\n' +
+            '§7🌎 QuickCraft stavba\\n' +
             '§7ID: §f' + instance.id + '\\n' +
             '§7Rozměry: §f' + instance.size.x + '×' +
             instance.size.y + '×' + instance.size.z + '\\n' +
@@ -442,6 +482,7 @@ async function openInstanceMenu(player, instance) {
         )
         .button('§l§b🔵 Přesunout')
         .button('§l§e✏ Přejmenovat')
+        .button('§l§d🌎 Teleportovat')
         .button('§l§c🔴 Odstranit')
         .button('§l§eℹ Informace')
         .button('§l§8Zavřít');
@@ -479,6 +520,11 @@ async function openInstanceMenu(player, instance) {
     }
 
     if (result.selection === 3) {
+        await openTeleportMenu(player, instance);
+        return;
+    }
+
+    if (result.selection === 4) {
         try {
             clearStructure(player.dimension, instance);
             removeInstance(instance);
@@ -494,7 +540,7 @@ async function openInstanceMenu(player, instance) {
         return;
     }
 
-    if (result.selection === 4) {
+    if (result.selection === 5) {
         notify(
             player,
             '§e' + instance.name + ' §7· ' +
@@ -506,7 +552,7 @@ async function openInstanceMenu(player, instance) {
         return;
     }
 
-    if (result.selection === 6 && moving?.instanceId === instance.id) {
+    if (result.selection === 7 && moving?.instanceId === instance.id) {
         placeMoved(player, instance);
     }
 }
