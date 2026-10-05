@@ -4,27 +4,47 @@
     "name": "QuickCraft",
     "description": "Custom Quick Structure Craft",
     "uuid": "943c66e8-b985-11ea-b3de-0242ac130004",
-    "version": [2, 2, 0],
-    "min_engine_version": [1, 20, 80]
+    "version": [
+      2,
+      2,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      20,
+      80
+    ]
   },
   "modules": [
     {
       "type": "data",
       "uuid": "943c6b02-b985-11ea-b3de-0242ac130004",
-      "version": [2, 2, 0]
+      "version": [
+        2,
+        2,
+        0
+      ]
     },
     {
       "type": "script",
       "language": "javascript",
       "uuid": "afac3050-ba2c-46d3-9eeb-d2998111ea1c",
-      "version": [2, 2, 0],
+      "version": [
+        2,
+        2,
+        0
+      ],
       "entry": "scripts/bootstrap.js"
     }
   ],
   "dependencies": [
     {
       "uuid": "b609f260-dd6c-463d-b298-611153d4eeab",
-      "version": [2, 0, 0]
+      "version": [
+        2,
+        0,
+        0
+      ]
     },
     {
       "module_name": "@minecraft/server",
