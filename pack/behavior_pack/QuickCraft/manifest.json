@@ -6,12 +6,12 @@
     "uuid": "943c66e8-b985-11ea-b3de-0242ac130004",
     "version": [
       2,
-      2,
+      3,
       0
     ],
     "min_engine_version": [
       1,
-      20,
+      21,
       80
     ]
   },
@@ -21,7 +21,7 @@
       "uuid": "943c6b02-b985-11ea-b3de-0242ac130004",
       "version": [
         2,
-        2,
+        3,
         0
       ]
     },
@@ -31,7 +31,7 @@
       "uuid": "afac3050-ba2c-46d3-9eeb-d2998111ea1c",
       "version": [
         2,
-        2,
+        3,
         0
       ],
       "entry": "scripts/bootstrap.js"
@@ -48,11 +48,11 @@
     },
     {
       "module_name": "@minecraft/server",
-      "version": "1.11.0"
+      "version": "2.0.0"
     },
     {
       "module_name": "@minecraft/server-ui",
-      "version": "1.2.0"
+      "version": "2.0.0"
     }
   ]
 }
