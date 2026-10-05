@@ -1,7 +1,9 @@
 // QuickCraft Structure Instance Manager.
-// Every placed QuickCraft structure gets a persistent control stone at its exact origin corner.
+// Every placed QuickCraft structure gets a persistent `qc:control` marker at its exact origin corner.
 // Moving uses a live raycast preview: the stone follows the player's view and a tap on it places the structure.
-// Instance names are stored independently from the structure template and are ready for future teleport links.
+// Instance names are stored independently from the structure template and can be used as teleport destinations.
+import { world, system } from '@minecraft/server';
+import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
 import { world, system } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
 import { CATEGORIES } from './catalog.js';
