@@ -21,40 +21,52 @@ async function show(player, form) {
 
 const PAGES = [
   {
-    title: '1 / 6 · Začínáme',
+    title: '1 / 8 · Začínáme',
     body: 'QuickCraft je menu pro rychlé stavění hotových struktur.\n\n' +
       'Potřebuješ svět s povolenými příkazy, protože add-on používá příkaz /structure load.\n\n' +
       'Po importu zapni v nastavení světa Behavior Pack i Resource Pack QuickCraft.',
   },
   {
-    title: '2 / 6 · Itemy',
+    title: '2 / 8 · Itemy',
     body: '§bQuickCraft menu§r otevře katalog staveb.\n' +
       '§bStavební hůl§r je alternativní item pro otevření stejného katalogu.\n' +
       '§bPrůvodce§r otevře tuto knihu znovu.\n\n' +
       'Itemy lze vyrobit v crafting table podle receptů QuickCraft nebo získat příkazem /give.',
   },
   {
-    title: '3 / 6 · Výběr stavby',
+    title: '3 / 8 · Výběr stavby',
     body: 'V hlavním menu můžeš použít hledání, oblíbené, naposledy postavené nebo kategorie.\n\n' +
       'Detail stavby ukazuje rozměry, kategorii a ovládání. Před stavěním nastav pozici, otočení, zrcadlení, základ a animaci.',
   },
   {
-    title: '4 / 6 · Vlastní struktury',
+    title: '4 / 8 · Vlastní struktury',
     body: 'Vytvoř nebo zkopíruj soubor .mcstructure do BP/structures a znovu importuj addon.\n\n' +
       'V menu otevři Vlastní struktury → Přidat / importovat a zadej ID souboru bez přípony, název a rozměry X Y Z.\n\n' +
       'Strukturu lze také uložit ve světě příkazem /structure save.',
   },
   {
-    title: '5 / 6 · Kontrolní kámen',
+    title: '5 / 8 · Kontrolní kámen',
     body: 'Po úspěšném postavení QuickCraft uloží instanci a na její origin umístí kontrolní kámen.\n\n' +
       'Klepnutím na kámen otevřeš oblíbené, informace, přesun nebo odstranění. Kámen je chráněn před náhodným rozbitím.\n\n' +
       'Přesun: spusť přesun, zamiř na nové místo a klepnutím potvrď umístění.',
   },
   {
-    title: '6 / 6 · Tipy a řešení problémů',
+    title: '6 / 8 · Tipy a řešení problémů',
     body: 'Velké stavby mohou vyžadovat načtené okolí a dostatek místa. Pokud stavba selže, přibliž se, načti chunky a zkontroluj povolení příkazů.\n\n' +
       'Resource Pack poskytuje společný atlas ikon pro menu, hůl, průvodce i kontrolní blok.\n\n' +
-      'Verze projektu: QuickCraft 2.4.0 · Minecraft Bedrock 1.21.80+',
+      'Verze projektu: QuickCraft 2.4.1 · Minecraft Bedrock 1.21.80+',
+  },
+  {
+    title: '7 / 8 · Pokročilé recepty',
+    body: 'Custom recepty patří do behavior packu do složky §frecipes§r. Každý JSON musí mít jedinečný identifikátor, například §fqc:my_wand§r.\n\n' +
+      'Pro pevné rozložení surovin použij §fminecraft:recipe_shaped§r. Pole §fpattern§r určuje mřížku a §fkey§r mapuje písmena na itemy. Mezery v patternu znamenají prázdné sloty.\n\n' +
+      'Výstup zapiš do §fresult.item§r a §fresult.count§r. Pro vlastní item použij jeho plný ID tvar, například §fqc:wand§r.',
+  },
+  {
+    title: '8 / 8 · Shapeless a ladění',
+    body: 'Pro recept, kde nezáleží na pořadí surovin, použij §fminecraft:recipe_shapeless§r. Suroviny vlož do pole §fingredients§r a recept označ tagem §fcrafting_table§r.\n\n' +
+      'Po přidání receptu spusť §fmake clean addon§r, aby se změna dostala do nového .mcaddon. Ověř JSON, zvyš verzi manifestů a otestuj recept v nové crafting table.\n\n' +
+      'Tip: ID receptu, ID itemu a cesta k souboru musí být konzistentní. Při neúspěchu nejdřív zkontroluj překlep v namespace, tag a existenci výstupního itemu.',
   },
 ];
 
