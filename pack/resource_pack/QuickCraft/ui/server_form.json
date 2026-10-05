@@ -1,0 +1,46 @@
+{
+  "namespace": "server_form",
+  "quickcraft_shell": {
+    "type": "image",
+    "texture": "textures/ui/quickcraft/form_panel",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "alpha": 0.24,
+    "layer": -1,
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_property_name": "(( - 'QuickCraft') = #title_text)",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+  "long_form": {
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_front",
+        "value": [
+          {
+            "quickcraft_shell@server_form.quickcraft_shell": {}
+          }
+        ]
+      }
+    ]
+  },
+  "custom_form": {
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_front",
+        "value": [
+          {
+            "quickcraft_shell@server_form.quickcraft_shell": {}
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -17,6 +17,7 @@ A lightweight Minecraft Bedrock (PE) add-on that adds a clean menu for quickly b
 - **Control stone administration** — tap a control stone to favorite, move or remove that exact placed structure.
 - **Move mode** — when a structure is moved, the structure disappears while its control stone remains visible until the new location is chosen.
 - **World / template export** — guided native `.mcworld` / `.mctemplate` export.
+- **Custom QuickCraft UI** — the resource pack adds a branded form panel with a crafting-table theme to QuickCraft server forms.
 
 ---
 
@@ -99,6 +100,12 @@ The in-game custom registration remains available for structures stored directly
 5. Build a structure normally. The control stone is created automatically after the successful QuickCraft build.
 
 The current pack targets Minecraft Bedrock **1.21.80+** with `@minecraft/server` **2.0.0** and `@minecraft/server-ui` **2.0.0**.
+
+### Custom form UI
+
+The resource pack includes `ui/server_form.json` and a custom `form_panel.png` theme. QuickCraft forms receive a dark blue, cyan and gold crafting-panel background through the `QuickCraft` title marker; forms from other add-ons are left untouched by the visibility binding.
+
+> Bedrock JSON UI is unversioned and is being replaced by Ore UI. The custom theme is therefore intentionally small and isolated, but it may require adjustment after future Minecraft UI updates.
 
 ---
 

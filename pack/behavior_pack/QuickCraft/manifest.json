@@ -7,7 +7,7 @@
     "version": [
       2,
       3,
-      0
+      1
     ],
     "min_engine_version": [
       1,
@@ -22,7 +22,7 @@
       "version": [
         2,
         3,
-        0
+        1
       ]
     },
     {
@@ -32,7 +32,7 @@
       "version": [
         2,
         3,
-        0
+        1
       ],
       "entry": "scripts/bootstrap.js"
     }
@@ -42,8 +42,8 @@
       "uuid": "b609f260-dd6c-463d-b298-611153d4eeab",
       "version": [
         2,
-        0,
-        0
+        3,
+        1
       ]
     },
     {

@@ -18,6 +18,8 @@ const MAX_INSTANCES = 100;
 const ROT_CMD = ['0_degrees', '90_degrees', '180_degrees', '270_degrees'];
 const MIRROR_CMD = ['none', 'x', 'z', 'xz'];
 const DEFAULTS = { pos: 0, rot: 0, mirror: 0, dx: 0, dy: 0, dz: 0 };
+// Keep the same marker as main.js so JSON UI branding remains scoped to QuickCraft.
+const formTitle = (text) => `§l§bQuickCraft §8· §r${text}`;
 const ALL = CATEGORIES.flatMap((c) => c.items.map((item) => ({ item, cat: c })));
 const BY_ID = new Map(ALL.map((entry) => [entry.item.id, entry.item]));
 
@@ -302,7 +304,7 @@ function registerBuildTicket(player, ticket) {
 
 async function renameInstance(player, instance) {
     const form = new ModalFormData()
-        .title('§l§ePřejmenovat stavbu')
+        .title(formTitle('Přejmenovat stavbu'))
         .textField(
             'Název této konkrétní stavby',
             'např. Jonášův dům',
@@ -484,7 +486,7 @@ async function openTeleportMenu(player, current) {
     }
 
     const form = new ActionFormData()
-        .title('§l§b🌎 Teleport')
+        .title(formTitle('🌎 Teleport'))
         .body('§7Vyber stavbu, ke které chceš cestovat.');
 
     for (const target of targets) {
@@ -518,7 +520,7 @@ async function openInstanceMenu(player, instance) {
     const moving = readPlayer(player, MOVE_KEY, null);
 
     const f = new ActionFormData()
-        .title('§l§b' + instance.name)
+        .title(formTitle(instance.name))
         .body(
             '§7🌎 QuickCraft stavba\n' +
             '§7ID: §f' + instance.id + '\n' +

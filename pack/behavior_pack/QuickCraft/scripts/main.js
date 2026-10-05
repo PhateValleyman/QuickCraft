@@ -33,6 +33,8 @@ const MIRRORS = ['Bez zrcadlení', 'Zrcadlit X', 'Zrcadlit Z', 'Zrcadlit X+Z'];
 const MIRROR_CMD = ['none', 'x', 'z', 'xz'];
 const ANIMS = ['Bez animace', 'Po vrstvách', 'Po blocích'];
 const ANIM_CMD = [null, 'layer_by_layer', 'block_by_block'];
+// Keep a stable marker so the resource-pack JSON UI theme only targets QuickCraft forms.
+const formTitle = (text) => `§l§bQuickCraft §8· §r${text}`;
 
 // ---------- uložená data hráče ----------
 function load(player, key, fallback) {
@@ -95,7 +97,7 @@ const views = {
     const favs = getFavs(player);
     const recent = getRecent(player);
     const f = new ActionFormData()
-      .title('§l§bQuick Craft')
+      .title(formTitle('menu staveb'))
       .body(`§7Vyber kategorii, nebo použij hledání.\n§8Staveb celkem: §7${ALL.length}`);
     f.button('§l§0Hledat\n§r§8podle názvu', ICON.search);
     f.button(`§l§0Oblíbené\n§r§8${favs.length} staveb`, ICON.fav);
@@ -122,7 +124,7 @@ const views = {
   async customs(player, st) {
     const customs = getCustoms(player);
     const f = new ActionFormData()
-      .title('§l§bVlastní struktury')
+      .title(formTitle('Vlastní struktury'))
       .body(customs.length
         ? '§7Vyber vlastní strukturu, nebo přidej další.\n§8Soubor .mcstructure musí být v BP/structures, případně musí být struktura uložena příkazem /structure save.'
         : '§7Zatím nemáš žádné vlastní struktury.\n§8Nejdřív vlož .mcstructure do behavior packu /structures nebo ji ulož ve světě příkazem /structure save.')
@@ -140,7 +142,7 @@ const views = {
 
   async customHelp(player, st) {
     const f = new ActionFormData()
-      .title('§l§eImport vlastní struktury')
+      .title(formTitle('Import vlastní struktury'))
       .body('§71. Zkopíruj soubor §f.mcstructure§7 do složky §fstructures§7 behavior packu a addon znovu importuj.\n\n§72. Do pole ID zapiš název souboru bez přípony (např. §fmoje_chata§7).\n\n§73. Pokud je struktura uložena přímo ve světě, použij stejné ID jako u příkazu §f/structure save moje_chata ...§7.\n\n§cAddon nemůže v Minecraftu otevřít systémový výběr souboru; tato obrazovka proto strukturu zaregistruje do menu a ověří se při stavění.')
       .button('§l« Zpět', ICON.back);
     const r = await show(player, f);
@@ -149,7 +151,7 @@ const views = {
 
   async customAdd(player, st) {
     const f = new ModalFormData()
-      .title('§l§bPřidat vlastní strukturu')
+      .title(formTitle('Přidat vlastní strukturu'))
       .textField('ID struktury bez .mcstructure', 'např. moje_chata', '')
       .textField('Název v menu', 'např. Moje chata', '')
       .textField('Rozměry X Y Z', 'např. 10 8 12', '10 8 12')
@@ -173,7 +175,7 @@ const views = {
 
   async search(player, st) {
     const f = new ModalFormData()
-      .title('§l§bHledat stavbu')
+      .title(formTitle('Hledat stavbu'))
       .textField('Název nebo část názvu (např. "hrad", "farma", "dragon")', 'hledaný text', st.last ?? '');
     const r = await show(player, f);
     if (r.canceled) return { view: 'main' };
@@ -193,7 +195,7 @@ const views = {
     const page = Math.min(st.page, pages - 1);
     const slice = entries.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
     const favs = new Set(getFavs(player));
-    const f = new ActionFormData().title(st.title);
+    const f = new ActionFormData().title(formTitle(st.title));
     f.body(entries.length
       ? `§7Nalezeno: §f${entries.length}§7 staveb` + (pages > 1 ? `   §8(strana ${page + 1}/${pages})` : '')
       : `§7${st.empty ?? 'Nic tu není.'}`);
@@ -229,7 +231,7 @@ const views = {
     if (vol > BIG_VOLUME) body += '\n§c⚠ Velká stavba – okolí musí být načtené (stůj uprostřed volné plochy).\n';
     body += `\n§8Nastavení: ${POS_MODES[cfg.pos]}, otočení ${ROTS[cfg.rot]}, ${MIRRORS[cfg.mirror].toLowerCase()}, podložka ${cfg.terrain ? 'ano' : 'ne'}, ${ANIMS[cfg.anim].toLowerCase()}`;
     const f = new ActionFormData()
-      .title(`§l${item.name}`)
+      .title(formTitle(item.name))
       .body(body)
       .button('§l§2Postavit', ICON.build)
       .button('§lUpravit nastavení stavění', ICON.settings)
@@ -261,7 +263,7 @@ const views = {
 
   async settingsMenu(player, st) {
     const f = new ActionFormData()
-      .title('§l§bNastavení')
+      .title(formTitle('Nastavení'))
       .body('§7Nastavení stavění a export aktuálního světa.')
       .button('§lNastavení stavění', ICON.settings)
       .button('§l§eExportovat svět\n§r§8.mcworld', ICON.export)
@@ -276,7 +278,7 @@ const views = {
   async exportGuide(player, st) {
     const template = st.kind === 'mctemplate';
     const f = new ActionFormData()
-      .title(template ? '§l§eExport .mctemplate' : '§l§eExport .mcworld')
+      .title(formTitle(template ? 'Export .mctemplate' : 'Export .mcworld'))
       .body(template
         ? '§7Použij nativní Minecraft menu:\n\n§fSeznam světů → tužka u světa → Export World Template / Exportovat šablonu světa.\n\n§8Addon nemá API pro zápis souborů .mctemplate, takže export musí potvrdit Minecraft mimo addon.'
         : '§7Použij nativní Minecraft menu:\n\n§fSeznam světů → tužka u světa → Export World / Exportovat svět.\n\n§8Addon nemá API pro zápis souborů .mcworld, takže export musí potvrdit Minecraft mimo addon.')
@@ -288,7 +290,7 @@ const views = {
   async settings(player, st) {
     const c = getSettings(player);
     const f = new ModalFormData()
-      .title('§l§bNastavení stavění')
+      .title(formTitle('Nastavení stavění'))
       .dropdown('Umístění', POS_MODES, c.pos)
       .dropdown('Otočení', ROTS, c.rot)
       .dropdown('Zrcadlení', MIRRORS, c.mirror)
