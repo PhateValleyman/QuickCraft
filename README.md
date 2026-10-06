@@ -103,6 +103,8 @@ The in-game custom registration remains available for structures stored directly
 
 The current pack targets Minecraft Bedrock **1.21.80+** with `@minecraft/server` **2.0.0** and `@minecraft/server-ui` **2.0.0**.
 
+Custom `ActionFormData` button icons use the full resource path `textures/items/qc_menu.png`; the `.png` suffix is required by Bedrock for custom form textures.
+
 ### Crafting recipes and in-game guide
 
 The behavior pack includes three recipes:

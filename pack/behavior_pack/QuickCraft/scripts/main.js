@@ -6,7 +6,8 @@ import { CATEGORIES as RAW_CATEGORIES } from './catalog.js';
 
 const MENU_ITEM = 'qc:menu';
 const WAND_ITEM = 'qc:wand';
-const MAIN_ICON = 'textures/items/qc_menu';
+// ActionFormData requires the .png suffix for custom resource-pack icons.
+const MAIN_ICON = 'textures/items/qc_menu.png';
 const MENU_ITEM_NAME = '§l§bQuick Craft §r§7· menu staveb';
 const PAGE_SIZE = 20;
 const BIG_VOLUME = 150000;
