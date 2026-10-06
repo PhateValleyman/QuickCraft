@@ -18,6 +18,7 @@ QuickCraft is a Minecraft Bedrock add-on targeting Minecraft 1.21.80+ with `@min
 - Use feature branches; do not merge into `master` unless explicitly requested.
 - JavaScript comments are written in English.
 - Keep player-facing guide and README instructions synchronized with behavior changes.
+- Use `textures/items/qc_menu` as the single main icon for custom items, form buttons, category buttons and the `qc:control` block.
 - After every pack change, run JSON and JavaScript validation, rebuild all artifacts, and upload `.mcpack` and `.mcaddon` files to a versioned GitHub Release.
 
 ## Validation and release

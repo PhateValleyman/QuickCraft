@@ -2,28 +2,31 @@
 // Otevření: pravý klik / tap s itemem "Quick Craft Menu", nebo chat příkaz !qc, nebo /scriptevent qc:menu
 import { world, system, ItemStack } from '@minecraft/server';
 import { ActionFormData, ModalFormData } from '@minecraft/server-ui';
-import { CATEGORIES } from './catalog.js';
+import { CATEGORIES as RAW_CATEGORIES } from './catalog.js';
 
 const MENU_ITEM = 'qc:menu';
 const WAND_ITEM = 'qc:wand';
+const MAIN_ICON = 'textures/items/qc_menu';
 const MENU_ITEM_NAME = '§l§bQuick Craft §r§7· menu staveb';
 const PAGE_SIZE = 20;
 const BIG_VOLUME = 150000;
-const CUSTOM_CAT = { id: 'custom', name: 'Vlastní struktury', icon: 'textures/items/chest' };
+// Use the resource-pack main icon for every QuickCraft form and category button.
+const CATEGORIES = RAW_CATEGORIES.map((category) => ({ ...category, icon: MAIN_ICON }));
+const CUSTOM_CAT = { id: 'custom', name: 'Vlastní struktury', icon: MAIN_ICON };
 const ALL = CATEGORIES.flatMap((c) => c.items.map((i) => ({ item: i, cat: c })));
 const BY_ID = new Map(ALL.map((e) => [e.item.id, e]));
 
 const ICON = {
-  search: 'textures/items/compass_item',
-  fav: 'textures/items/nether_star',
-  recent: 'textures/items/clock_item',
-  settings: 'textures/items/redstone_dust',
-  back: 'textures/items/arrow',
-  build: 'textures/items/iron_pickaxe',
-  custom: 'textures/items/chest',
-  add: 'textures/items/book_writable',
-  info: 'textures/items/paper',
-  export: 'textures/items/map_filled',
+  search: MAIN_ICON,
+  fav: MAIN_ICON,
+  recent: MAIN_ICON,
+  settings: MAIN_ICON,
+  back: MAIN_ICON,
+  build: MAIN_ICON,
+  custom: MAIN_ICON,
+  add: MAIN_ICON,
+  info: MAIN_ICON,
+  export: MAIN_ICON,
 };
 
 const DEFAULTS = { pos: 0, rot: 0, mirror: 0, terrain: true, anim: 0, secs: 5, dx: 0, dy: 0, dz: 0 };

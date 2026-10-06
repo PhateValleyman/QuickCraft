@@ -113,7 +113,7 @@ The behavior pack includes three recipes:
 | `qc:wand` | Echo shard and sticks | Opens the same menu as an alternative building tool. |
 | `qc:guide` | Book, paper, ink sac and amethyst shard | Opens an eight-page in-game guide covering setup, items, building, custom structures, control stones and advanced custom recipes. |
 
-All three item definitions use the shared `qc_menu` artwork through both `textures/item_texture.json` and `textures/terrain_texture.json`. This keeps behavior-pack item icons, the control block and resource-pack atlas entries consistent.
+All three item definitions, every QuickCraft form button, every structure category and the `qc:control` block use the shared `qc_menu` artwork through both `textures/item_texture.json` and `textures/terrain_texture.json`. This keeps the behavior-pack icons, menu UI and resource-pack atlas entries consistent.
 
 The last two guide pages explain advanced custom recipes: `minecraft:recipe_shaped` with `pattern` and `key`, `minecraft:recipe_shapeless` with `ingredients`, unique recipe identifiers, custom item outputs and the validation/build workflow.
 
