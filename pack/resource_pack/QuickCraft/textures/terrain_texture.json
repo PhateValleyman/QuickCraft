@@ -1,9 +1,0 @@
-{
-  "resource_pack_name": "quickcraft",
-  "texture_name": "atlas.terrain",
-  "texture_data": {
-    "qc_menu": {
-      "textures": "textures/items/qc_menu"
-    }
-  }
-}
